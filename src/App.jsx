@@ -3,25 +3,43 @@ import header from './assets/header.webp'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import TeamCard from './components/TeamCard.jsx'
+import Search from './components/Search.jsx'
 import { obtenerTeams } from './service/klService.js';
 
 const App = () => {
   const [teams, setTeams] = useState([]);
+  const [filteredTeams, setFilteredTeams] = useState([]);
   useEffect(() => {
     obtenerTeams()
-      .then(teams => setTeams(teams))
+      .then(teams => {
+        setTeams(teams)
+        setFilteredTeams(teams)
+  })
       .catch((err) => {
         console.log(err.message);
       });
   }, []);
+ const handleSearch = (query) => {
+   if (!query) {
+     setFilteredTeams(teams);
+   } else {
+     setFilteredTeams(
+       teams.filter(team =>
+         team.nombre.toLowerCase().startsWith(
+           query.toLowerCase())
+       )
+     );
+   }
+ };
 
   return (
       <div className="container shadow p-0">
         <header>
           <img src={header} alt="header" className="w-100" />
         </header>
+        <Search onSearch={handleSearch} />
         <div className="row p-3 justify-content-center">
-          {teams.map((team) => (
+          {filteredTeams.map((team) => (
             <div className="col-md-6 mt-3" key={team.id}>
               <TeamCard nombre={team.nombre} escudo={team.escudo} poster={team.poster} />
             </div>
